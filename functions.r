@@ -1,9 +1,9 @@
 # Compute intermediate values of list
-intermediate <- function(l) (diff(l) / 2 + head(l, -1))
+intermediate <- function(l) diff(l) / 2 + head(l, -1)
 
 # pi
 # Exploit the fact that y only contains 1's and 0's
-p <- function(y) (sum(y) / length(y))
+p <- function(y) sum(y) / length(y)
 
 # Util
 assert <- function(bool) if (!bool) stop('Assertion error.')
@@ -11,23 +11,19 @@ assert <- function(bool) if (!bool) stop('Assertion error.')
 # Gini index
 # y is a vector of bits indicating the class label
 # Returns 0 if y is empty
-impurity <- function (y)
-{
-    #if (length(y) == 0) return(0)
-    assert(length(y) > 0)
-
-    # Exploit the fact that y only contains 0's and 1's
-    p_1 <- p(y)
-    assert(p_1 <= 1)
-    return(p_1 * (1 - p_1))
-}
+impurity <- function (y) p(y) * (1 - p(y))
+#{
+    #assert(length(y) > 0)
+    #p_1 <- p(y)
+    #assert(p_1 <= 1)
+    #return(p_1 * (1 - p_1))
+#}
 
 # Bestsplit
 # x is a vector of numeric attribute
 # y is a vector of bits indicating the class label
 # Computes the best split w.r.t. the numeric attribute x
 # Doesn't use segment borders
-# TODO: consider changing split with splitvalues; removes the need for compute split
 bestsplit <- function (x, y, minleaf)
 {
     assert(length(x) == length(y))
@@ -63,31 +59,11 @@ bestsplit <- function (x, y, minleaf)
     splitvalue <- allowed_splits[[purest]]
     reduction <- reductions[[purest]]
 
-    return(splitvalue)
     return(list(splitvalue = splitvalue, reduction = reduction))
 }
 
-newPointer = function(inputValue)
-{
-    object = new.env(parent = globalenv())  
-    object$value = inputValue  
-    class(object) = 'pointer'
-
-    return(object)  
-}
-
-updatePointerValue = function (object, ...) { # create S3 generic
-    UseMethod("updatePointerValue")
-}
-updatePointerValue.pointer = function(object, newValue){ # create S3 method
-    if (!is(object, "pointer"))
-        stop(" 'object' argument must be of class 'pointer' .")
-    object$value = newValue
-    return(NULL)
-}
-
 # Constructor for tree
-tree2 <- function(rows, classlabels)
+tree = function(rows, classlabels)
 {
     this = new.env(parent = globalenv())  
     class(this) <- "tree"
@@ -98,21 +74,21 @@ tree2 <- function(rows, classlabels)
     this$rightchild <- NULL
     return(this)
 }
-set_values = function (object, ...) { # create S3 generic
-    UseMethod("set_children")
-}
-set_values = function(object, leftchild, rightchild, splitvalue){ # create S3 method
+
+set_values = function(object, leftchild, rightchild, splitattribute, splitvalue)
+{
     if (!is(object, "tree"))
-        stop(" 'object' argument must be of class 'pointer' .")
+        stop(" 'object' argument must be of class 'tree' .")
     object$leftchild = leftchild
     object$rightchild = rightchild
     object$splitvalue = splitvalue
+    object$splitattribute = splitattribute
     return(NULL)
 }
 
 tree.grow <- function(x, y, nmin, minleaf)
 {
-    root <- tree2(x, y)
+    root <- tree(x, y)
     nodelist <- list(root)
     while(length(nodelist) > 0)
     {
@@ -123,28 +99,43 @@ tree.grow <- function(x, y, nmin, minleaf)
         if (impurity(node$classlabels) > 0 & length(node$classlabels > nmin))
         {
             assert(length(node$classlabels) > 1)
-            #for (attribute in dim(x)[1]) {
-            #}
-            splitvalue <- bestsplit(node$rows[, 1], node$classlabels, minleaf)
-            if (is.null(splitvalue))
-                next
+            max_reduction <- 0
+            splitvalue = NULL
+            splitattribute <- NULL
+            for (attribute in dim(x)[2])
+            {
+                result <- bestsplit(node$rows[, attribute], node$classlabels, minleaf)
+                if (is.null(result)) next
 
-            print(1)
+                if (result$reduction > max_reduction)
+                {
+                    max_reduction <- result$reduction
+                    splitvalue <- result$splitvalue
+                    splitattribute <- attribute
+                }
+            }
 
-            left <- node$rows[, 1] < splitvalue
-            right <- node$rows[, 1] >= splitvalue
+            if (is.null(splitvalue)) next
+
+            #print(splitvalue)
+            #print(splitattribute)
+            #print(node$rows[splitattribute])
+
+            left <- node$rows[, splitattribute] < splitvalue
+            right <- node$rows[, splitattribute] >= splitvalue
+
             leftchildrows <- node$rows[left,]
             rightchildrows <- node$rows[right,]
             leftchildclasslabels <- node$classlabels[left]
             rightchildclasslabels <- node$classlabels[right]
 
-            leftchild <- tree2(leftchildrows, leftchildclasslabels)
-            rightchild <- tree2(rightchildrows, rightchildclasslabels)
+            leftchild <- tree(leftchildrows, leftchildclasslabels)
+            rightchild <- tree(rightchildrows, rightchildclasslabels)
 
             assert(length(leftchild$classlabels) > 0)
             assert(length(rightchild$classlabels) > 0)
 
-            set_values(node, leftchild, rightchild, splitvalue)
+            set_values(node, leftchild, rightchild, splitvalue, splitattribute)
 
             # Because trees are lists we must wrap left and right in a list
             # to perform a correct concatenation
@@ -152,4 +143,9 @@ tree.grow <- function(x, y, nmin, minleaf)
         }
     }
     return(root)
+}
+
+tree.classify <- function(x, tr)
+{
+
 }
