@@ -1,3 +1,9 @@
+# Compute the mode of given data set
+mode <- function(x) {
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+
 # Compute intermediate values of list
 intermediate <- function(l) diff(l) / 2 + head(l, -1)
 
@@ -99,6 +105,8 @@ tree.grow <- function(x, y, nmin, minleaf)
         if (impurity(node$classlabels) > 0 & length(node$classlabels > nmin))
         {
             assert(length(node$classlabels) > 1)
+
+            # Compute the best split attribute-value pair
             max_reduction <- 0
             splitvalue = NULL
             splitattribute <- NULL
@@ -121,6 +129,7 @@ tree.grow <- function(x, y, nmin, minleaf)
             #print(splitattribute)
             #print(node$rows[splitattribute])
 
+            # Construct the tree children resulting from the split
             left <- node$rows[, splitattribute] < splitvalue
             right <- node$rows[, splitattribute] >= splitvalue
 
@@ -135,7 +144,7 @@ tree.grow <- function(x, y, nmin, minleaf)
             assert(length(leftchild$classlabels) > 0)
             assert(length(rightchild$classlabels) > 0)
 
-            set_values(node, leftchild, rightchild, splitvalue, splitattribute)
+            set_values(node, leftchild, rightchild, splitattribute, splitvalue)
 
             # Because trees are lists we must wrap left and right in a list
             # to perform a correct concatenation
@@ -147,5 +156,23 @@ tree.grow <- function(x, y, nmin, minleaf)
 
 tree.classify <- function(x, tr)
 {
-
+    y <- c()
+    for (row in 1:NROW(x))
+    {
+        #print(row)
+        node <- tr
+        # While the current node still has children
+        while(!is.null(node$leftchild))
+        {
+            #print(0)
+            if (x[row, node$splitattribute] < node$splitvalue)
+                node <- node$leftchild
+            else
+                node <- node$rightchild
+        }
+        #print(y)
+        #print(node$classlabels)
+        y[row] <- mode(node$classlabels)
+    }
+    return(y)
 }
