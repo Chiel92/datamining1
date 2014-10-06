@@ -67,22 +67,52 @@ bestsplit <- function (x, y, minleaf)
     return(list(splitvalue = splitvalue, reduction = reduction))
 }
 
-# Constructor for tree
-tree <- function(rows=NULL, classlabels=NULL, splitvalue=NULL, leftchild=NULL, rightchild=NULL)
+newPointer = function(inputValue)
 {
-    this <- list()
+    object = new.env(parent = globalenv())  
+    object$value = inputValue  
+    class(object) = 'pointer'
+
+    return(object)  
+}
+
+updatePointerValue = function (object, ...) { # create S3 generic
+    UseMethod("updatePointerValue")
+}
+updatePointerValue.pointer = function(object, newValue){ # create S3 method
+    if (!is(object, "pointer"))
+        stop(" 'object' argument must be of class 'pointer' .")
+    object$value = newValue
+    return(NULL)
+}
+
+# Constructor for tree
+tree2 <- function(rows, classlabels)
+{
+    this = new.env(parent = globalenv())  
     class(this) <- "tree"
     this$rows <- rows
     this$classlabels <- classlabels
-    this$splitvalue <- splitvalue
-    this$leftchild <- leftchild
-    this$rightchild <- rightchild
+    this$splitvalue <- NULL
+    this$leftchild <- NULL
+    this$rightchild <- NULL
     return(this)
+}
+set_values = function (object, ...) { # create S3 generic
+    UseMethod("set_children")
+}
+set_values = function(object, leftchild, rightchild, splitvalue){ # create S3 method
+    if (!is(object, "tree"))
+        stop(" 'object' argument must be of class 'pointer' .")
+    object$leftchild = leftchild
+    object$rightchild = rightchild
+    object$splitvalue = splitvalue
+    return(NULL)
 }
 
 tree.grow <- function(x, y, nmin, minleaf)
 {
-    root <- tree(x, y)
+    root <- tree2(x, y)
     nodelist <- list(root)
     while(length(nodelist) > 0)
     {
@@ -96,28 +126,29 @@ tree.grow <- function(x, y, nmin, minleaf)
             #for (attribute in dim(x)[1]) {
             #}
             splitvalue <- bestsplit(node$rows[, 1], node$classlabels, minleaf)
+            if (is.null(splitvalue))
+                next
 
-            if (!is.null(splitvalue))
-            {
-                leftchild <- tree()
-                rightchild <- tree()
+            print(1)
 
-                left <- node$rows[, 1] < splitvalue
-                right <- node$rows[, 1] >= splitvalue
+            left <- node$rows[, 1] < splitvalue
+            right <- node$rows[, 1] >= splitvalue
+            leftchildrows <- node$rows[left,]
+            rightchildrows <- node$rows[right,]
+            leftchildclasslabels <- node$classlabels[left]
+            rightchildclasslabels <- node$classlabels[right]
 
-                leftchild$rows <- node$rows[left,]
-                rightchild$rows <- node$rows[right,]
+            leftchild <- tree2(leftchildrows, leftchildclasslabels)
+            rightchild <- tree2(rightchildrows, rightchildclasslabels)
 
-                leftchild$classlabels <- node$classlabels[left]
-                rightchild$classlabels <- node$classlabels[right]
+            assert(length(leftchild$classlabels) > 0)
+            assert(length(rightchild$classlabels) > 0)
 
-                assert(length(leftchild$classlabels) > 0)
-                assert(length(rightchild$classlabels) > 0)
+            set_values(node, leftchild, rightchild, splitvalue)
 
-                # Because trees are lists we must wrap left and right in a list
-                # to perform a correct concatenation
-                nodelist <- c(nodelist, list(leftchild, rightchild))
-            }
+            # Because trees are lists we must wrap left and right in a list
+            # to perform a correct concatenation
+            nodelist <- c(nodelist, list(leftchild, rightchild))
         }
     }
     return(root)
