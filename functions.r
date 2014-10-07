@@ -25,6 +25,7 @@ tree = function(rows, classlabels)
     class(this) <- "tree"
     this$rows <- rows
     this$classlabels <- classlabels
+    this$majorityclass <- mode(classlabels)
     return(this)
 }
 
@@ -184,12 +185,13 @@ tree.classify = function(x, tr)
         # While the current node still has children
         while(!is.null(node$leftchild))
         {
+            assert(!is.null(node$rightchild))
             if (x[row, node$splitattribute] < node$splitvalue)
                 node <- node$leftchild
             else
                 node <- node$rightchild
         }
-        y[row] <- mode(node$classlabels)
+        y[row] <- node$majorityclass
     }
     return(y)
 }
