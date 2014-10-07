@@ -52,7 +52,7 @@ bestsplitvalue = function (x, y, minleaf)
 
     # Construct all candidate splits values
     attribute_values <- sort(unique(x))
-    if (length(attribute_values) <= 1)
+    if (length(attribute_values) < 2)
         return(NULL)
     splitvalues <- intermediate(attribute_values)
 
@@ -125,17 +125,14 @@ tree.grow = function(x, y, nmin, minleaf)
         nodelist[[1]] <- NULL
 
         assert(length(node$classlabels) > 0)
-        if (impurity(node$classlabels) > 0 && length(node$classlabels) > nmin)
+
+        if (impurity(node$classlabels) > 0 && length(node$classlabels) >= nmin)
         {
             # Compute the best split attribute-value pair
             result <- bestsplit(node$rows, node$classlabels, minleaf)
             if (is.null(result)) next
             splitvalue <- result$splitvalue
             splitattribute <- result$splitattribute
-
-            #print(splitvalue)
-            #print(splitattribute)
-            #print(node$rows[splitattribute])
 
             # Construct the tree children resulting from the split
             leftpart <- node$rows[, splitattribute] < splitvalue
@@ -167,15 +164,14 @@ tree.print = function(tr)
 
         # If we are at a leaf
         if (is.null(node$leftchild))
-        {
             print('Leaf')
-            next
+        else
+        {
+            print(paste('Splitattribute:', toString(node$splitattribute)))
+            print(paste('Splitvalue:', toString(node$splitvalue)))
+
+            nodelist <- c(nodelist, list(node$leftchild, node$rightchild))
         }
-
-        print(paste('splitattribute:', toString(node$splitattribute)))
-        print(paste('splitvalue:', toString(node$splitvalue)))
-
-        nodelist <- c(nodelist, list(node$leftchild, node$rightchild))
     }
 }
 
@@ -203,14 +199,10 @@ confusion_matrix = function(x, y, nmin, minleaf)
     tr <- tree.grow(x, y, nmin, minleaf)
     prediction <- tree.classify(x, tr)
 
-    truly_0 <- y == 0
-    truly_1 <- y == 1
-    #print(truly_0)
-    #print(truly_1)
-    prediction_0 <- prediction[truly_0]
-    prediction_1 <- prediction[truly_1]
-    #print(prediction_0)
-    #print(prediction_1)
+    #tree.print(tr)
+
+    prediction_0 <- prediction[y == 0]
+    prediction_1 <- prediction[y == 1]
 
     return(matrix(c(length(prediction_0) - sum(prediction_0), sum(prediction_0),
                     length(prediction_1) - sum(prediction_1), sum(prediction_1)),
