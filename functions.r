@@ -7,12 +7,12 @@ mode = function(x) {
 # Compute intermediate values of list
 intermediate = function(l) diff(l) / 2 + head(l, -1)
 
-# pi
-# Exploit the fact that y only contains 1's and 0's
-p = function(y) sum(y) / length(y)
-
 # Util
 assert = function(bool) if (!bool) stop('Assertion error.')
+
+# p(1|y)
+# Exploit the fact that y only contains 1's and 0's
+p = function(y) sum(y) / length(y)
 
 # Gini index
 # y is a vector of bits indicating the class label
@@ -28,6 +28,7 @@ tree = function(rows, classlabels)
     return(this)
 }
 
+# Setter for tree
 set_values = function(object, leftchild, rightchild, splitattribute, splitvalue)
 {
     if (!is(object, "tree"))
@@ -58,7 +59,7 @@ bestsplitvalue = function (x, y, minleaf)
     # Make sure only to consider splits which meet the minleaf constraint
     allowed_splits = list()
     for (splitvalue in splitvalues)
-        if (length(y[x < splitvalue]) >= minleaf & length(y[x >= splitvalue]) >= minleaf)
+        if (length(y[x < splitvalue]) >= minleaf && length(y[x >= splitvalue]) >= minleaf)
             allowed_splits <- c(allowed_splits, splitvalue)
 
     if (length(allowed_splits) == 0)
@@ -69,7 +70,11 @@ bestsplitvalue = function (x, y, minleaf)
     {
         y1 <- y[x < splitvalue]
         y2 <- y[x >= splitvalue]
-        return(impurity(y) - (p(y1) * impurity(y1) + p(y2) * impurity(y2)))
+        reduction <- (impurity(y) - (length(y1) / length(y) * impurity(y1) +
+                                     length(y2) / length(y) * impurity(y2)))
+        # This is not always true due to rounding errors
+        # assert(reduction >= 0)
+        return(reduction)
     }
 
     # Assess split values by impurity reduction and pick the best
@@ -97,7 +102,6 @@ bestsplit = function (x, y, minleaf)
         result <- bestsplitvalue(x[,attribute], y, minleaf)
         if (is.null(result)) next
 
-        print(result$reduction)
         if (result$reduction > max_reduction)
         {
             max_reduction <- result$reduction
@@ -121,10 +125,8 @@ tree.grow = function(x, y, nmin, minleaf)
         nodelist[[1]] <- NULL
 
         assert(length(node$classlabels) > 0)
-        if (impurity(node$classlabels) > 0 & length(node$classlabels > nmin))
+        if (impurity(node$classlabels) > 0 && length(node$classlabels) > nmin)
         {
-            assert(length(node$classlabels) > 1)
-
             # Compute the best split attribute-value pair
             result <- bestsplit(node$rows, node$classlabels, minleaf)
             if (is.null(result)) next
@@ -182,23 +184,35 @@ tree.classify = function(x, tr)
     y <- NULL
     for (row in 1:NROW(x))
     {
-        #print(row)
         node <- tr
         # While the current node still has children
-        #print(x[row, node$splitattribute])
         while(!is.null(node$leftchild))
         {
-            #print(0)
-            #print(node$splitvalue)
             if (x[row, node$splitattribute] < node$splitvalue)
                 node <- node$leftchild
             else
                 node <- node$rightchild
         }
-        #return(node)
-        #print(y)
-        #print(node$classlabels)
         y[row] <- mode(node$classlabels)
     }
     return(y)
+}
+
+confusion_matrix = function(x, y, nmin, minleaf)
+{
+    tr <- tree.grow(x, y, nmin, minleaf)
+    prediction <- tree.classify(x, tr)
+
+    truly_0 <- y == 0
+    truly_1 <- y == 1
+    #print(truly_0)
+    #print(truly_1)
+    prediction_0 <- prediction[truly_0]
+    prediction_1 <- prediction[truly_1]
+    #print(prediction_0)
+    #print(prediction_1)
+
+    return(matrix(c(length(prediction_0) - sum(prediction_0), sum(prediction_0),
+                    length(prediction_1) - sum(prediction_1), sum(prediction_1)),
+                  nrow = 2, ncol = 2))
 }

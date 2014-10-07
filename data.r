@@ -6,3 +6,5 @@ x <- x[1:20,]
 y <- y[1:20]
 
 credit.dat <- read.csv('credit.txt')
+
+pima.dat <- read.csv('pima.txt')
