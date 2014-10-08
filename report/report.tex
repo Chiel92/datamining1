@@ -1,4 +1,4 @@
-\title{Lab assignment 1 \\ \small{Datamining}}
+\title{Lab Assignment 1 \\ \small{Datamining}}
 \author{Chiel ten Brinke 3677133}
 \documentclass[12pt]{article}
 \usepackage{amssymb,amsmath,amsthm,enumerate,graphicx,float,lmodern}
@@ -19,19 +19,31 @@
 \begin{document}
 \maketitle
 
-\section{Dataset}
+\section{Data Set}
 \label{sec:dataset}
 
-The dataset that has been used for this assignment is called Covertype Data Set and has been
+The data set that has been used for this assignment is called Covertype Data Set and has been
 taken from the UCI machine learning
-repository\footnote{http://archive.ics.uci.edu/ml/datasets/Covertype}.
-There are relatively many attributes and the dataset appears to be very predictable.
-To make the results a bit more interesting, we shall disregard some attributes.
+repository\footnote{http://archive.ics.uci.edu/ml/data sets/Covertype}.
+There are relatively many attributes and the data set appears to be very predictable.
+To make the results less trivial, we shall disregard some attributes.
 Besides the fact that there are many attributes, there are also a lot of data instances,
-namely 581012.
+namely $581012$.
 Because this large amount of data leads to inconvenient running times, and because of the
-predictability of the dataset, we shrinked the dataset in a randomized manner,
+predictability of the data set, we shrinked the data set in a randomized manner,
 down to a size that is more suitable for this assignment.
+The resulting data set contains $10000$ instances.
+
+The training set and test set are sampled randomly from the data set, such that
+they are complementary and have ratio 7:3 as required.
+
+As classlabel column 13 is used, and as attributes columns 1 till 10 are used.
+This is because column 13 is the binary label where the number 0's and 1's are
+most equally distributed.
+Most of the other binary labels are very unequally distributed, giving trivial results.
+
+\section{Results}
+\label{sec:results}
 
 
 \end{document}

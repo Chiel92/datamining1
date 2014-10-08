@@ -10,9 +10,9 @@ create_training_test_data = function()
     testset <<- covtype.dat[-trainindex, ]
 
     class_col <- 13
-    training_x <<- trainingset[, c(1:(class_col - 1))]#, (class_col + 1):ncol(trainingset))]
+    training_x <<- trainingset[, 1:10]
     training_y <<- trainingset[, class_col]
-    test_x <<- testset[, c(1:(class_col - 1))]#, (class_col + 1):ncol(trainingset))]
+    test_x <<- testset[, 1:10]
     test_y <<- testset[, class_col]
 }
 
