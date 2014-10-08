@@ -8,3 +8,5 @@ y <- y[1:20]
 credit.dat <- read.csv('credit.txt')
 
 pima.dat <- read.csv('pima.txt')
+
+covtype.dat <- read.csv('covtype_shrinked.data')
