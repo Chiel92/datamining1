@@ -206,17 +206,27 @@ tree.classify = function(x, tr)
 }
 
 
-confusion_matrix = function(x, y, nmin, minleaf)
+confusion_matrix = function(nmin, minleaf)
 {
-    tr <- tree.grow(x, y, nmin, minleaf)
-    prediction <- tree.classify(x, tr)
+    tr <- tree.grow(training_x, training_y, nmin, minleaf)
+    prediction <- tree.classify(test_x, tr)
 
     #tree.print(tr)
 
-    prediction_0 <- prediction[y == 0]
-    prediction_1 <- prediction[y == 1]
+    prediction_0 <- prediction[test_y == 0]
+    prediction_1 <- prediction[test_y == 1]
 
     return(matrix(c(length(prediction_0) - sum(prediction_0), sum(prediction_0),
                     length(prediction_1) - sum(prediction_1), sum(prediction_1)),
                   nrow = 2, ncol = 2))
+}
+
+test = function(nmin, minleaf)
+{
+    tr <- tree.grow(training_x, training_y, nmin, minleaf)
+    prediction <- tree.classify(test_x, tr)
+    expected <- test_y
+    errors <- sum(prediction != expected)
+    error_rate <- errors / length(prediction)
+    return(error_rate)
 }
