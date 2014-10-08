@@ -1,3 +1,37 @@
+\title{Lab assignment 1 \\ \small{Datamining}}
+\author{Chiel ten Brinke 3677133}
+\documentclass[12pt]{article}
+\usepackage{amssymb,amsmath,amsthm,enumerate,graphicx,float,lmodern}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{axiom}[theorem]{Axiom}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\set}[2]{\left\lbrace#1 \, \middle|\, #2 \right\rbrace}
+
+\begin{document}
+\maketitle
+
+\section{Dataset}
+\label{sec:dataset}
+
+The dataset that has been used for this assignment is called Covertype Data Set and has been
+taken from the UCI machine learning
+repository\footnote{http://archive.ics.uci.edu/ml/datasets/Covertype}.
+There are relatively many attributes and the dataset appears to be very predictable.
+To make the results a bit more interesting, we shall disregard some attributes.
+Besides the fact that there are many attributes, there are also a lot of data instances,
+namely 581012.
+Because this large amount of data leads to inconvenient running times, and because of the
+predictability of the dataset, we shrinked the dataset in a randomized manner,
+down to a size that is more suitable for this assignment.
 
 
-
+\end{document}
