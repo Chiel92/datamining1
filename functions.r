@@ -1,4 +1,13 @@
-# Compute the mode of given data set
+# TODO:
+# - implement segment borders
+# - rewrite loops to apply
+
+# NOTE:
+# The pima testcase confusion matrix differs a bit from the answer in the assignment
+# This is due to the way classification is done when there is no strict majority class
+
+
+# Compute the mode of given vector
 mode = function(x) {
   ux <- unique(x)
   ux[which.max(tabulate(match(x, ux)))]
@@ -195,6 +204,7 @@ tree.classify = function(x, tr)
     }
     return(y)
 }
+
 
 confusion_matrix = function(x, y, nmin, minleaf)
 {
