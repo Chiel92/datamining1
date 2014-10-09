@@ -74,13 +74,42 @@ works best for this dataset.
 \section{Results}
 \label{sec:results}
 
-Trying various configurations on the entire data set showed that choosing
-$\mathrm{nmin} = 3$ and $\mathrm{minleaf} = 1$ resulted in the lowest error rate.
+Various configurations on the entire data set have been tested as shown in shown in Table~\ref{table1}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lll}
+    nmin & minleaf & error rate \\
+    \hline \hline
+    1 & 1  & 0.0966667 \\
+    2 & 1  & 0.0966667 \\
+    3 & 1  & 0.0963333 \\
+    4 & 1  & 0.099 \\
+    5 & 1  & 0.09833333 \\
+    1 & 2  & 0.1006667 \\
+    2 & 2  & 0.1006667 \\
+    3 & 2  & 0.1006667 \\
+    4 & 2  & 0.1006667 \\
+    5 & 2  & 0.1013333 \\
+    10 & 5  & 0.109 \\
+    20 & 5  & 0.1136667 \\
+    30 & 5  & 0.11433 \\
+    20 & 10 & 0.119 \\
+    50 & 10 & 0.112333 \\
+    100 & 50 & 0.1196667 \\
+    %20 & 1  & 0.1086667 \\
+    %30 & 1  & 0.107333 \\
+\end{tabular}
+\caption{Error rate as function of nmin and minleaf tested on the entire dataset.}
+\label{table1}
+\end{table}
+
+Note that $\mathrm{nmin} = 3$ and $\mathrm{minleaf} = 1$ resulted in the lowest error rate.
 This is a remarkably low configuration.
 On one hand this suggests again that this data set is very consistent and predictable,
 without much random scatter such that overfitting can hardly occur.
-On the other hand we see that the error rate is still about $10\%$, so there is definitely
-some contradictory data present in the data set.
+On the other hand we see that the error rate is still about $10\%$, so since there is presumably
+not much random scatter, there is probably contradictory data present in the data set.
 
 \begin{table}[h]
 \centering
@@ -90,10 +119,8 @@ some contradictory data present in the data set.
     0 & 1723 & 154 \\
     1 & 135  & 980 \\
 \end{tabular}
-\caption{Confusion matrix for $\mathrm{nmin} = 3$ and $\mathrm{minleaf} = 1$.
-The corresponding error rate is 0.09633333.
-}
-\label{confusion-matrix}
+\caption{Confusion matrix for $\mathrm{nmin} = 3$ and $\mathrm{minleaf} = 1$.}
+\label{table2}
 \end{table}
 
 \end{document}
