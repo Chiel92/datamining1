@@ -25,7 +25,7 @@
 The data set that has been used for this assignment is called Covertype Data Set and has been
 taken from the UCI machine learning
 repository\footnote{http://archive.ics.uci.edu/ml/data sets/Covertype}.
-There are relatively many attributes and the data set appears to be very predictable.
+There are 55 attributes, which is relatively many, and the data set appears to be very predictable.
 To make the results less trivial, we shall disregard some attributes.
 Besides the fact that there are many attributes, there are also a lot of data instances,
 namely $581012$.
@@ -38,12 +38,62 @@ The training set and test set are sampled randomly from the data set, such that
 they are complementary and have ratio 7:3 as required.
 
 As classlabel column 13 is used, and as attributes columns 1 till 10 are used.
-This is because column 13 is the binary label where the number 0's and 1's are
-most equally distributed.
-Most of the other binary labels are very unequally distributed, giving trivial results.
+This is because column 13 is the binary label where the number 0's and 1's are most
+equally distributed, whereas most of the other binary labels are very unequally distributed,
+giving trivial results.
+
+\section{Finding good parameter values}
+\label{sec:finding}
+
+In order to find good values for nmin and minleaf, i.e.\ that result in a low error rate,
+a plot has been made of the behaviour of the error rate as a function of nmin and minleaf.
+To keep the compution time within reasonable bounds, the values for nmin and minleaf were
+tested on random samples from the data set of size 100.
+The resulting plots are shown in Figure~\ref{fig:graph1} and Figure~\ref{fig:graph2}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{graph1.png}
+    \caption{Error rate as a function of nmin and minleaf.}
+\label{fig:graph1}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{graph2.png}
+    \caption{Error rate as a function of nmin and minleaf.}
+\label{fig:graph2}
+\end{figure}
+
+
+It is likely that the error rate will not behave exactly the same when evaluated on
+the entire data set.
+Nonetheless, the graphs give already a clue that choosing low values for nmin and minleaf
+works best for this dataset.
 
 \section{Results}
 \label{sec:results}
 
+Trying various configurations on the entire data set showed that choosing
+$\mathrm{nmin} = 3$ and $\mathrm{minleaf} = 1$ resulted in the lowest error rate.
+This is a remarkably low configuration.
+On one hand this suggests again that this data set is very consistent and predictable,
+without much random scatter such that overfitting can hardly occur.
+On the other hand we see that the error rate is still about $10\%$, so there is definitely
+some contradictory data present in the data set.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{r||ll}
+     & 0    & 1   \\
+    \hline \hline
+    0 & 1723 & 154 \\
+    1 & 135  & 980 \\
+\end{tabular}
+\caption{Confusion matrix for $\mathrm{nmin} = 3$ and $\mathrm{minleaf} = 1$.
+The corresponding error rate is 0.09633333.
+}
+\label{confusion-matrix}
+\end{table}
 
 \end{document}
