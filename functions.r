@@ -221,12 +221,30 @@ confusion_matrix = function(nmin, minleaf)
                   nrow = 2, ncol = 2))
 }
 
-test = function(nmin, minleaf)
+error_rate = function(nmin, minleaf)
 {
     tr <- tree.grow(training_x, training_y, nmin, minleaf)
     prediction <- tree.classify(test_x, tr)
     expected <- test_y
     errors <- sum(prediction != expected)
-    error_rate <- errors / length(prediction)
-    return(error_rate)
+    rate <- errors / length(prediction)
+    return(rate)
+}
+
+generate_nmin_minleaf_plot = function()
+{
+    result <- ""
+    values <- seq(from = 0, to = 100, by = 5)
+    #values <- c(seq(from = 0, to = 100, by = 10),
+                #seq(from = 200, to = 1000, by = 100))
+    for(nmin in values)
+        for(minleaf in values)
+        {
+            result <- cbind(result, paste(toString(nmin), ', ',
+                            toString(minleaf), ', ',
+                            toString(error_rate(nmin, minleaf))))
+            print(paste(nmin, minleaf))
+        }
+
+    write(result, file = 'output.txt')
 }

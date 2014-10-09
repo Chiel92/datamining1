@@ -2,12 +2,16 @@ credit.dat <- read.csv('credit.txt')
 pima.dat <- read.csv('pima.txt')
 covtype.dat <- read.csv('covtype_shrinked.data')
 
-create_training_test_data = function()
+create_training_test_data = function(size)
 {
-    index <- 1:nrow(covtype.dat)
+    # Sample random data from the data set
+    data <- covtype.dat[sample(1:nrow(covtype.dat), size), ]
+
+    # Divide in trainingset and testset
+    index <- 1:nrow(data)
     trainindex <- sample(index, trunc(length(index) * 7 / 10))
-    trainingset <<- covtype.dat[trainindex, ]
-    testset <<- covtype.dat[-trainindex, ]
+    trainingset <<- data[trainindex, ]
+    testset <<- data[-trainindex, ]
 
     class_col <- 13
     training_x <<- trainingset[, 1:10]
