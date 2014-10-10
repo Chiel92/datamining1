@@ -1,38 +1,47 @@
-# TODO:
-# - implement segment borders
-# - rewrite loops to apply
-
 # NOTE:
-# The pima testcase confusion matrix differs a bit from the answer in the assignment
+# The pima testcase confusion matrix differs a bit from the answer in the assignment description
 # This is due to the way classification is done when there is no strict majority class
-
-
-# Compute the mode of given vector
-mode = function(x) {
-  ux <- unique(x)
-  ux[which.max(tabulate(match(x, ux)))]
-}
-
-
-# Compute intermediate values of list
-intermediate = function(l) diff(l) / 2 + head(l, -1)
+# i.e. when the number of 1's equals the number of 0's in a leaf
 
 
 # Util
 assert = function(bool) if (!bool) stop('Assertion error.')
 
 
-# p(1|y)
+# mode(x: vector): a single value from x
+#
+# Compute the mode (most frequent value) of given vector
+mode = function(x) {
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+
+
+# intermediate(x: vector): vector
+#
+# Compute intermediate values of list
+intermediate = function(x) diff(x) / 2 + head(x, -1)
+
+
+# p(y: vector of bits): real number
+#
+# Compute p(1|y)
 # Exploit the fact that y only contains 1's and 0's
 p = function(y) sum(y) / length(y)
 
 
-# Gini index
-# y is a vector of bits indicating the class label
+# impurity(y: vector of bits): real number
+#
+# Compute gini index
 impurity = function (y) p(y) * (1 - p(y))
 
 
-# Constructor for tree
+# tree(rows: matrix, classlabels: vector): tree object
+#
+# Constructor for tree objects where the root node has given rows and classlabels as data.
+# Because the tree is actually an environment under the hood, this allows us to
+# set properties "in place", which is normally not possible in R. This is very convenient
+# when building up a tree.
 tree = function(rows, classlabels)
 {
     this = new.env(parent = globalenv())
@@ -44,7 +53,10 @@ tree = function(rows, classlabels)
 }
 
 
-# Setter for tree
+# set_values(object: tree object, leftchild: tree object, rightchild: tree object,
+#            splitattribute: integer, splitvalue: real number): nothing
+#
+# Setter function for tree properties.
 set_values = function(object, leftchild, rightchild, splitattribute, splitvalue)
 {
     if (!is(object, "tree"))
@@ -57,9 +69,8 @@ set_values = function(object, leftchild, rightchild, splitattribute, splitvalue)
 }
 
 
-# Bestsplitvalue
-# x is a vector of numeric attribute
-# y is a vector of bits indicating the class label
+# bestsplitvalue(x: vector of real numbers, y: vector of bits): real number
+#
 # Computes the best split value w.r.t. the numeric attribute x
 # Doesn't use segment borders
 bestsplitvalue = function (x, y, minleaf)
@@ -106,10 +117,9 @@ bestsplitvalue = function (x, y, minleaf)
 }
 
 
-# Bestsplit
-# x is a matrix of numeric attributes
-# y is a vector of bits indicating the class label
-# Computes the best split w.r.t. the numeric attributes x
+# bestsplit(x: matrix of real numbers, y: vector of bits): integer and real number
+#
+# Computes the best split attribute and value w.r.t. the numeric attributes in x
 bestsplit = function (x, y, minleaf)
 {
     max_reduction <- 0
@@ -134,6 +144,13 @@ bestsplit = function (x, y, minleaf)
 }
 
 
+# tree.grow(x: matrix of real numbers, y: vector of bits,
+#           nmin: integer, minleaf: integer): tree object
+#
+# Grow a classification tree from given training data.
+# Argument nmin is the number of observations that a node must contain at least,
+# for it to be allowed to be split.
+# Argument minleaf is the minimum number of observations required for a leaf node.
 tree.grow = function(x, y, nmin, minleaf)
 {
     root <- tree(x, y)
@@ -174,6 +191,10 @@ tree.grow = function(x, y, nmin, minleaf)
 }
 
 
+# tree.print(tr: tree object): nothing
+#
+# Prints a flat representation of the given tree object to give an indication of what
+# the tree looks like.
 tree.print = function(tr)
 {
     nodelist <- list(tr)
@@ -196,6 +217,9 @@ tree.print = function(tr)
 }
 
 
+# tree.classify(x: matrix of real numbers, tr: tree object): vector of bits
+#
+# Compute the classlabels of given data using the given classification tree
 tree.classify = function(x, tr)
 {
     y <- NULL
@@ -217,6 +241,9 @@ tree.classify = function(x, tr)
 }
 
 
+# create_training_test_data(size: integer): nothing
+#
+# Generate trainingset and testset of given size and put them into global variables
 create_training_test_data = function(size)
 {
     # Sample random data from the data set
@@ -236,6 +263,10 @@ create_training_test_data = function(size)
 }
 
 
+# confusion_matrix(nmin: integer, minleaf: integer): nothing
+#
+# Generate tree from trainingset and evaluate testset.
+# Then print the resulting confusion matrix and error rate.
 confusion_matrix = function(nmin, minleaf)
 {
     tr <- tree.grow(training_x, training_y, nmin, minleaf)
@@ -253,6 +284,27 @@ confusion_matrix = function(nmin, minleaf)
     print(rate)
 }
 
+
+# error_rate(nmin: integer, minleaf: integer): real number
+#
+# Generate tree from trainingset and evaluate testset.
+# Then return the resulting error rate.
+error_rate = function(nmin, minleaf)
+{
+    tr <- tree.grow(training_x, training_y, nmin, minleaf)
+    prediction <- tree.classify(test_x, tr)
+    expected <- test_y
+    errors <- sum(prediction != expected)
+    rate <- errors / length(prediction)
+    return(rate)
+}
+
+
+# generate_nmin_minleaf_plot(): nothing
+#
+# For many values of nmin and minleaf generate tree from trainingset and evaluate testset.
+# Then print these together with the resulting error rate.
+# This function was used to generate data for the 3d plots.
 generate_nmin_minleaf_plot = function()
 {
     result <- ""
@@ -270,15 +322,3 @@ generate_nmin_minleaf_plot = function()
 
     write(result, file = 'output.txt')
 }
-
-
-error_rate = function(nmin, minleaf)
-{
-    tr <- tree.grow(training_x, training_y, nmin, minleaf)
-    prediction <- tree.classify(test_x, tr)
-    expected <- test_y
-    errors <- sum(prediction != expected)
-    rate <- errors / length(prediction)
-    return(rate)
-}
-
