@@ -13,19 +13,24 @@ mode = function(x) {
   ux[which.max(tabulate(match(x, ux)))]
 }
 
+
 # Compute intermediate values of list
 intermediate = function(l) diff(l) / 2 + head(l, -1)
 
+
 # Util
 assert = function(bool) if (!bool) stop('Assertion error.')
+
 
 # p(1|y)
 # Exploit the fact that y only contains 1's and 0's
 p = function(y) sum(y) / length(y)
 
+
 # Gini index
 # y is a vector of bits indicating the class label
 impurity = function (y) p(y) * (1 - p(y))
+
 
 # Constructor for tree
 tree = function(rows, classlabels)
@@ -38,6 +43,7 @@ tree = function(rows, classlabels)
     return(this)
 }
 
+
 # Setter for tree
 set_values = function(object, leftchild, rightchild, splitattribute, splitvalue)
 {
@@ -49,6 +55,7 @@ set_values = function(object, leftchild, rightchild, splitattribute, splitvalue)
     object$splitattribute = splitattribute
     return(NULL)
 }
+
 
 # Bestsplitvalue
 # x is a vector of numeric attribute
@@ -98,6 +105,7 @@ bestsplitvalue = function (x, y, minleaf)
     return(list(splitvalue = splitvalue, reduction = reduction))
 }
 
+
 # Bestsplit
 # x is a matrix of numeric attributes
 # y is a vector of bits indicating the class label
@@ -124,6 +132,7 @@ bestsplit = function (x, y, minleaf)
         return(NULL)
     return(list(splitattribute = splitattribute, splitvalue = splitvalue))
 }
+
 
 tree.grow = function(x, y, nmin, minleaf)
 {
@@ -164,6 +173,7 @@ tree.grow = function(x, y, nmin, minleaf)
     return(root)
 }
 
+
 tree.print = function(tr)
 {
     nodelist <- list(tr)
@@ -185,6 +195,7 @@ tree.print = function(tr)
     }
 }
 
+
 tree.classify = function(x, tr)
 {
     y <- NULL
@@ -203,6 +214,25 @@ tree.classify = function(x, tr)
         y[row] <- node$majorityclass
     }
     return(y)
+}
+
+
+create_training_test_data = function(size)
+{
+    # Sample random data from the data set
+    data <- covtype.dat[sample(1:nrow(covtype.dat), size), ]
+
+    # Divide in trainingset and testset
+    index <- 1:nrow(data)
+    trainindex <- sample(index, trunc(length(index) * 7 / 10))
+    trainingset <<- data[trainindex, ]
+    testset <<- data[-trainindex, ]
+
+    class_col <- 13
+    training_x <<- trainingset[, 1:10]
+    training_y <<- trainingset[, class_col]
+    test_x <<- testset[, 1:10]
+    test_y <<- testset[, class_col]
 }
 
 
@@ -240,6 +270,7 @@ generate_nmin_minleaf_plot = function()
 
     write(result, file = 'output.txt')
 }
+
 
 error_rate = function(nmin, minleaf)
 {
