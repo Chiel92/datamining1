@@ -4,10 +4,6 @@
 # i.e. when the number of 1's equals the number of 0's in a leaf
 
 
-# Util
-assert = function(bool) if (!bool) stop('Assertion error.')
-
-
 # mode(x: vector): a single value from x
 #
 # Compute the mode (most frequent value) of given vector
@@ -75,9 +71,6 @@ set_values = function(object, leftchild, rightchild, splitattribute, splitvalue)
 # Doesn't use segment borders
 bestsplitvalue = function (x, y, minleaf)
 {
-    assert(length(x) == length(y))
-    assert(length(x) > 1)
-
     # Construct all candidate splits values
     attribute_values <- sort(unique(x))
     if (length(attribute_values) < 2)
@@ -100,8 +93,7 @@ bestsplitvalue = function (x, y, minleaf)
         y2 <- y[x >= splitvalue]
         reduction <- (impurity(y) - (length(y1) / length(y) * impurity(y1) +
                                      length(y2) / length(y) * impurity(y2)))
-        # This is not always true due to rounding errors
-        # assert(reduction >= 0)
+        # This is not always true due to rounding errors: reduction >= 0
         return(reduction)
     }
 
@@ -160,8 +152,6 @@ tree.grow = function(x, y, nmin, minleaf)
         node <- nodelist[[1]]
         nodelist[[1]] <- NULL
 
-        assert(length(node$classlabels) > 0)
-
         if (impurity(node$classlabels) > 0 && length(node$classlabels) >= nmin)
         {
             # Compute the best split attribute-value pair
@@ -176,9 +166,6 @@ tree.grow = function(x, y, nmin, minleaf)
 
             leftchild <- tree(node$rows[leftpart,], node$classlabels[leftpart])
             rightchild <- tree(node$rows[rightpart,], node$classlabels[rightpart])
-
-            assert(length(leftchild$classlabels) > 0)
-            assert(length(rightchild$classlabels) > 0)
 
             set_values(node, leftchild, rightchild, splitattribute, splitvalue)
 
@@ -229,7 +216,6 @@ tree.classify = function(x, tr)
         # While the current node still has children
         while(!is.null(node$leftchild))
         {
-            assert(!is.null(node$rightchild))
             if (x[row, node$splitattribute] < node$splitvalue)
                 node <- node$leftchild
             else
