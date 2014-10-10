@@ -25,12 +25,13 @@
 The data set that has been used for this assignment is called Covertype Data Set and has been
 taken from the UCI machine learning
 repository\footnote{http://archive.ics.uci.edu/ml/data sets/Covertype}.
-There are 55 attributes, which is relatively many, and the data set appears to be very predictable.
-To make the results less trivial, we shall disregard some attributes.
-Besides the fact that there are many attributes, there are also a lot of data instances,
-namely $581012$.
-Because this large amount of data leads to inconvenient running times, and because of the
-predictability of the data set, we shrinked the data set in a randomized manner,
+There are 55 attributes, which is relatively many.
+Some first tests showed that the data set was very predictable.
+Therefore, to make the results less trivial, we shall disregard some attributes.
+Besides the fact that there are many attributes, there are also a lot of data instances
+($> 500 000$).
+Because this amount of data leads to inconvenient running times, and because of the
+predictability of the data set, we shrinked the data set (in a randomized manner)
 down to a size that is more suitable for this assignment.
 The resulting data set contains $10000$ instances.
 
@@ -45,7 +46,7 @@ giving trivial results.
 \section{Finding good parameter values}
 \label{sec:finding}
 
-In order to find good values for nmin and minleaf, i.e.\ that result in a low error rate,
+In order to find good values for nmin and minleaf, i.e.\ those that result in a low error rate,
 a plot has been made of the behaviour of the error rate as a function of nmin and minleaf.
 To keep the compution time within reasonable bounds, the values for nmin and minleaf were
 tested on random samples from the data set of size 100.
@@ -67,14 +68,16 @@ The resulting plots are shown in Figure~\ref{fig:graph1} and Figure~\ref{fig:gra
 
 
 It is likely that the error rate will not behave exactly the same when evaluated on
-the entire data set.
-Nonetheless, the graphs give already a clue that choosing low values for nmin and minleaf
-works best for this dataset.
+the entire data set instead of a very small sample.
+Nonetheless, as one can see, the graphs do give a clue that choosing low values
+for nmin and minleaf works best for this dataset.
 
 \section{Results}
 \label{sec:results}
 
-Various configurations on the entire data set have been tested as shown in shown in Table~\ref{table1}
+Taking into account that low values for nmin and minleaf probably work best,
+various configurations on the entire data set have been tested
+as shown in Table~\ref{table1}
 
 \begin{table}[h]
 \centering
@@ -110,6 +113,7 @@ On one hand this suggests again that this data set is very consistent and predic
 without much random scatter such that overfitting can hardly occur.
 On the other hand we see that the error rate is still about $10\%$, so since there is presumably
 not much random scatter, there is probably contradictory data present in the data set.
+In Table~\ref{table2} one can see the corresponding confusion matrix.
 
 \begin{table}[h]
 \centering
